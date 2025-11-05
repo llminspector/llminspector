@@ -150,7 +150,8 @@ cython_debug/
 .vscode/
 
 # Custom
-fingerprints/fingerprints.db
 .claude/
 
+
+#generated reports
 *report.json
