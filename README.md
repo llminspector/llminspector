@@ -20,11 +20,9 @@
 
 <div align="center">
 
-https://github.com/llminspector/llminspector/assets/demo.webm
+[![Watch Demo](https://img.shields.io/badge/▶️%20Watch-Demo%20Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://github.com/llminspector/llminspector/raw/main/docs/demo.webm)
 
-*Watch LLMInspector in action: Model identification and security testing in under 2 minutes*
-
-**Alternative:** [📹 Download Demo Video](./docs/demo.webm)
+*Model identification and security testing in under 2 minutes*
 
 </div>
 
