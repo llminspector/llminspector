@@ -20,7 +20,7 @@
 
 <div align="center">
 
-[![Watch Demo](https://img.shields.io/badge/▶️%20Watch-Demo%20Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://github.com/llminspector/llminspector/raw/main/docs/demo.webm)
+https://github.com/user-attachments/assets/daf6da5d-6776-4a81-992e-30a8b6e62320
 
 *Model identification and security testing in under 2 minutes*
 
