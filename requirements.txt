@@ -1,0 +1,4 @@
+requests
+numpy
+python-dotenv
+sentence-transformers
