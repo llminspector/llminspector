@@ -16,6 +16,20 @@
 
 ---
 
+## 🎥 Demo
+
+<div align="center">
+
+https://github.com/llminspector/llminspector/assets/demo.webm
+
+*Watch LLMInspector in action: Model identification and security testing in under 2 minutes*
+
+**Alternative:** [📹 Download Demo Video](./docs/demo.webm)
+
+</div>
+
+---
+
 ## 📋 Overview
 
 **LLMInspector** is a comprehensive penetration testing suite designed for security professionals to identify and audit Large Language Models (LLMs) deployed in production environments. By analyzing behavioral patterns, response characteristics, and semantic fingerprints, LLMInspector can identify and analyze prompt injection attacks against both open-source and commercial language models. Additionally, LLMInspector includes features that allow connection to Ollama and analysis of +200 local models.
@@ -108,6 +122,14 @@ python llmpentester.py \
   --url http://localhost:11434/api/chat \
   --model-in-payload llama3:8b \
   --output-file security_report.json
+```
+
+**💡 Pro Tip: Enable Verbose Mode**
+
+Add `--verbose` or `-v` to any command to see detailed debug output, perfect for demos and troubleshooting:
+
+```bash
+python llmfinder.py --url https://api.example.com/chat --verbose
 ```
 
 ---

@@ -12,6 +12,19 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 EMBEDDING_MODEL = 'text-embedding-3-small'
 EMBEDDING_CACHE = {}
 
+# Global verbose flag
+VERBOSE = False
+
+def set_verbose(verbose):
+    """Set the verbose mode globally for this module."""
+    global VERBOSE
+    VERBOSE = verbose
+
+def log_verbose(message):
+    """Print message only if verbose mode is enabled."""
+    if VERBOSE:
+        print(f"[DEBUG] {message}")
+
 def get_embedding(text, model=EMBEDDING_MODEL):
     """
     Generate an embedding for the given text using OpenAI's API.
@@ -33,8 +46,10 @@ def get_embedding(text, model=EMBEDDING_MODEL):
 
     # Check cache first
     if cache_key in EMBEDDING_CACHE:
+        log_verbose(f"Using cached embedding for text (hash: {text_hash[:8]}...)")
         return EMBEDDING_CACHE[cache_key]
 
+    log_verbose(f"Generating embedding for text: {text[:60]}...")
     # Call OpenAI API
     url = "https://api.openai.com/v1/embeddings"
     headers = {
@@ -47,14 +62,17 @@ def get_embedding(text, model=EMBEDDING_MODEL):
     }
 
     try:
+        log_verbose(f"Calling OpenAI API ({model})...")
         response = requests.post(url, headers=headers, json=payload, timeout=30)
         response.raise_for_status()
 
         result = response.json()
         embedding = result['data'][0]['embedding']
+        log_verbose(f"Received embedding vector (dimension: {len(embedding)})")
 
         # Cache the result
         EMBEDDING_CACHE[cache_key] = embedding
+        log_verbose(f"Cached embedding ({len(EMBEDDING_CACHE)} total in cache)")
 
         return embedding
 

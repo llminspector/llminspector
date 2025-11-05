@@ -3,6 +3,19 @@ import json
 
 DB_PATH = 'fingerprints/fingerprints.db'
 
+# Global verbose flag
+VERBOSE = False
+
+def set_verbose(verbose):
+    """Set the verbose mode globally for this module."""
+    global VERBOSE
+    VERBOSE = verbose
+
+def log_verbose(message):
+    """Print message only if verbose mode is enabled."""
+    if VERBOSE:
+        print(f"[DEBUG] {message}")
+
 def init_db():
     """
     Initializes the database and creates/updates the fingerprints table.
@@ -74,6 +87,8 @@ def save_fingerprint(model_name, features):
     Saves or updates a model's fingerprint in the database.
     'features' should be a dictionary with feature names as keys and scores as values.
     """
+    log_verbose(f"Saving fingerprint for model: {model_name}")
+    log_verbose(f"Features to save: {len(features)} columns")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
@@ -88,6 +103,7 @@ def save_fingerprint(model_name, features):
     '''
     
     cursor.execute(query, [model_name] + values)
+    log_verbose(f"Fingerprint saved successfully to database")
     
     conn.commit()
     conn.close()
@@ -96,6 +112,7 @@ def load_fingerprints():
     """
     Loads all fingerprints from the database.
     """
+    log_verbose(f"Loading fingerprints from database: {DB_PATH}")
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row # Allows accessing columns by name
     cursor = conn.cursor()
@@ -106,7 +123,9 @@ def load_fingerprints():
     conn.close()
     
     # Convert rows to a list of dictionaries
-    return [dict(row) for row in rows]
+    result = [dict(row) for row in rows]
+    log_verbose(f"Loaded {len(result)} fingerprints from database")
+    return result
 
 def save_response_embeddings(model_name, responses_data):
     """

@@ -14,8 +14,16 @@ def main():
     parser.add_argument("--save-as", type=str, required=True, help="The name under which to save the fingerprint in the database.")
     parser.add_argument("--prompts", type=str, default="prompts.json", help="Path to the JSON file with the prompt suite.")
     parser.add_argument("--runs", type=int, default=3, help="The number of times to run the test suite to create a stable, averaged fingerprint.")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose/debug output for detailed logging.")
 
     args = parser.parse_args()
+
+    # Enable verbose mode in all modules if requested
+    if args.verbose:
+        print("[*] Verbose mode enabled")
+        core.set_verbose(True)
+        database.set_verbose(True)
+        embeddings.set_verbose(True)
 
     # Initialize the database
     database.init_db()

@@ -4,13 +4,29 @@ import requests
 import re
 from collections import defaultdict
 
+# Global verbose flag
+VERBOSE = False
+
+def set_verbose(verbose):
+    """Set the verbose mode globally for this module."""
+    global VERBOSE
+    VERBOSE = verbose
+
+def log_verbose(message):
+    """Print message only if verbose mode is enabled."""
+    if VERBOSE:
+        print(f"[DEBUG] {message}")
+
 def load_prompts(file_path='prompts.json'):
     """
     Loads the prompt suite from an external JSON file.
     """
+    log_verbose(f"Loading prompts from {file_path}...")
     try:
         with open(file_path, 'r') as f:
-            return json.load(f)
+            prompts = json.load(f)
+            log_verbose(f"Loaded {sum(len(p) for p in prompts.values())} prompts across {len(prompts)} categories")
+            return prompts
     except FileNotFoundError:
         print(f"Error: Prompt file not found at '{file_path}'", file=sys.stderr)
         sys.exit(1)
@@ -20,6 +36,8 @@ def load_prompts(file_path='prompts.json'):
 
 def send_prompt(url, prompt, session, model_name="default"):
     # (Implementation is the same as before)
+    log_verbose(f"Sending prompt to {url} (model: {model_name})")
+    log_verbose(f"Prompt preview: {prompt[:60]}...")
     payload = {
         "model": model_name,
         "messages": [{"role": "user", "content": prompt}],
@@ -29,13 +47,16 @@ def send_prompt(url, prompt, session, model_name="default"):
     try:
         response = session.post(url, json=payload, headers=headers, timeout=600)
         response.raise_for_status()
-        return response.json()
+        result = response.json()
+        log_verbose(f"Received response ({len(str(result))} bytes)")
+        return result
     except requests.exceptions.RequestException as e:
         print(f"Error sending prompt for '{prompt[:20]}...': {e}", file=sys.stderr)
         return None
 
 def extract_features(prompt, response_text):
     # (Implementation is the same as before)
+    log_verbose(f"Extracting features from response (length: {len(response_text)} chars)")
     features = {
         'mentions_chatgpt': "chatgpt" in response_text.lower(),
         'mentions_openai': "openai" in response_text.lower(),
@@ -91,15 +112,22 @@ def run_test_suite(url, model_name, prompts_file='prompts.json'):
 
     with requests.Session() as session:
         total_prompts = sum(len(p) for p in prompts.values())
+        log_verbose(f"Starting test suite with {total_prompts} prompts across {len(prompts)} categories")
         progress = 0
         for category, prompt_list in prompts.items():
+            log_verbose(f"Testing category: {category} ({len(prompt_list)} prompts)")
             for prompt in prompt_list:
                 progress += 1
-                print(f"  -> Testing ({progress}/{total_prompts}) {category[:20]}...", end='\\r')
+                print(f"  -> Testing ({progress}/{total_prompts}) {category[:20]}...", end='\r')
+                log_verbose(f"\n  Category: {category} | Prompt {progress}/{total_prompts}")
                 response_data = send_prompt(url, prompt, session, model_name)
                 if response_data:
                     content = response_data.get("message", {}).get("content", "")
+                    log_verbose(f"  Response preview: {content[:100]}...")
                     features = extract_features(prompt, content)
+                    detected = [k for k, v in features.items() if v is True]
+                    if detected:
+                        log_verbose(f"  Features detected: {', '.join(detected)}")
                     all_features.append(features)
 
                     # Store the full response with context
@@ -108,8 +136,11 @@ def run_test_suite(url, model_name, prompts_file='prompts.json'):
                         'prompt_text': prompt,
                         'response_text': content
                     })
+                else:
+                    log_verbose(f"  No response received for this prompt")
 
     print("\\n[*] Test suite complete. Aggregating results...")
+    log_verbose(f"Processing {len(all_features)} feature sets from responses")
 
     # Aggregate features
     agg_scores = defaultdict(lambda: {'true': 0, 'false': 0})
@@ -121,8 +152,11 @@ def run_test_suite(url, model_name, prompts_file='prompts.json'):
     final_fingerprint = {}
     for key, scores in agg_scores.items():
         total = scores['true'] + scores['false']
-        if total > 0: final_fingerprint[key] = scores['true'] / total
+        if total > 0: 
+            final_fingerprint[key] = scores['true'] / total
+            log_verbose(f"Feature '{key}': {scores['true']}/{total} = {final_fingerprint[key]:.2f}")
 
+    log_verbose(f"Final fingerprint contains {len(final_fingerprint)} features")
     return final_fingerprint, responses_data
 
 
@@ -164,6 +198,7 @@ def run_pentest_suite(url, model_name, prompts_file='pentest_prompts.json'):
     """
     prompts = load_prompts(prompts_file)
     print(f"[*] Running pentesting suite against model '{model_name}' at {url}...")
+    log_verbose(f"Pentesting suite loaded with {sum(len(p) for p in prompts.values())} test cases")
 
     results = defaultdict(list)
 
@@ -171,15 +206,20 @@ def run_pentest_suite(url, model_name, prompts_file='pentest_prompts.json'):
         total_prompts = sum(len(p) for p in prompts.values())
         progress = 0
         for category, test_cases in prompts.items():
+            log_verbose(f"Testing category: {category} ({len(test_cases)} test cases)")
             for test_case in test_cases:
                 progress += 1
                 prompt = test_case['prompt']
                 print(f"  -> Testing ({progress}/{total_prompts}) {category}: {test_case['name']}...", end='\r')
+                log_verbose(f"\n  Test: {test_case['name']}")
+                log_verbose(f"  Prompt: {prompt[:80]}...")
                 
                 response_data = send_prompt(url, prompt, session, model_name)
                 if response_data:
                     content = response_data.get("message", {}).get("content", "")
+                    log_verbose(f"  Response: {content[:100]}...")
                     status = evaluate_response(content, test_case)
+                    log_verbose(f"  Status: {status}")
                     
                     # Store comprehensive test results
                     results[category].append({

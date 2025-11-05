@@ -73,8 +73,16 @@ def main():
     parser.add_argument("--prompts", type=str, default="prompts.json", help="Path to the JSON file for the prompt suite.")
     parser.add_argument("--heuristic-weight", type=float, default=0.5, help="Weight for heuristic score (0-1). Semantic weight = 1 - heuristic_weight.")
     parser.add_argument("--no-embeddings", action="store_true", help="Disable semantic embedding comparison (use only heuristics).")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose/debug output for detailed logging.")
 
     args = parser.parse_args()
+
+    # Enable verbose mode in all modules if requested
+    if args.verbose:
+        print("[*] Verbose mode enabled")
+        core.set_verbose(True)
+        database.set_verbose(True)
+        embeddings.set_verbose(True)
 
     # 1. Generate the live fingerprint from the target URL
     live_fingerprint, live_responses = core.run_test_suite(args.url, args.model_in_payload, args.prompts)
