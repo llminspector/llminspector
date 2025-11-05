@@ -16,18 +16,6 @@
 
 ---
 
-## 🎥 Demo
-
-<div align="center">
-
-https://github.com/user-attachments/assets/daf6da5d-6776-4a81-992e-30a8b6e62320
-
-*Model identification and security testing in under 2 minutes*
-
-</div>
-
----
-
 ## 📋 Overview
 
 **LLMInspector** is a comprehensive penetration testing suite designed for security professionals to identify and audit Large Language Models (LLMs) deployed in production environments. By analyzing behavioral patterns, response characteristics, and semantic fingerprints, LLMInspector can identify and analyze prompt injection attacks against both open-source and commercial language models. Additionally, LLMInspector includes features that allow connection to Ollama and analysis of +200 local models.
@@ -40,6 +28,18 @@ During security audits of AI-powered applications, identifying the underlying mo
 - 🎯 **Targeted Testing**: Apply model-specific exploits and bypasses
 - 📊 **Compliance Verification**: Ensure approved models are in use
 - 🛡️ **Attack Surface Analysis**: Understand the AI technology stack
+
+---
+
+## 🎥 Demo
+
+<div align="center">
+
+https://github.com/user-attachments/assets/daf6da5d-6776-4a81-992e-30a8b6e62320
+
+*Model identification and security testing in under 2 minutes*
+
+</div>
 
 ---
 
